@@ -8,99 +8,91 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            margin: 40px;
+            margin-top: 50px;
         }
-        .container {
+        #quoteForm {
             display: inline-block;
             text-align: left;
         }
-        input, button {
-            display: block;
-            margin: 10px 0;
-            width: 300px;
-            padding: 8px;
+        .form-group {
+            margin-bottom: 15px;
         }
-        .back-btn {
-            background-color: #b30000;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
+        button {
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
     <h1>Get a Quote</h1>
-    <div class="container">
-        <label>Pickup Location:</label>
-        <input id="pickup" type="text" placeholder="Enter pickup address">
-
-        <label>Stops:</label>
-        <div id="stops"></div>
-        <button onclick="addStop()">+ Add Stop</button>
-
-        <label>Drop-off Location:</label>
-        <input id="dropoff" type="text" placeholder="Enter drop-off address">
-
-        <button onclick="calculateQuote()">Calculate Quote</button>
-
-        <p id="result"></p>
-        <p>* $40 minimum to book *</p>
-        <button class="back-btn" onclick="window.location.href='index.html'">Back to Home</button>
-    </div>
+    <form id="quoteForm">
+        <div class="form-group">
+            <label for="pickup">Pickup Location:</label><br>
+            <input type="text" id="pickup" name="pickup">
+        </div>
+        <div id="stops">
+            <div class="form-group">
+                <label for="stop1">Stops:</label><br>
+                <input type="text" name="stops[]" placeholder="Stop 1">
+            </div>
+        </div>
+        <button type="button" onclick="addStop()">+ Add Stop</button>
+        <div class="form-group">
+            <label for="dropoff">Drop-off Location:</label><br>
+            <input type="text" id="dropoff" name="dropoff">
+        </div>
+        <button type="button" onclick="calculateQuote()">Calculate Quote</button>
+    </form>
+    <p id="result"></p>
+    <p>* $40 minimum to book *</p>
+    <button onclick="window.location.href='index.html'">Back to Home</button>
 
     <script>
+        let stopCount = 1;
+
         function addStop() {
-            const stopInput = document.createElement("input");
-            stopInput.type = "text";
-            stopInput.placeholder = "Enter stop address";
-            stopInput.className = "stop";
-            document.getElementById("stops").appendChild(stopInput);
-            new google.maps.places.Autocomplete(stopInput);
+            stopCount++;
+            const stopsDiv = document.getElementById('stops');
+            const div = document.createElement('div');
+            div.className = 'form-group';
+            div.innerHTML = `<input type="text" name="stops[]" placeholder="Stop ${stopCount}">`;
+            stopsDiv.appendChild(div);
         }
 
         function calculateQuote() {
-            const pickup = document.getElementById("pickup").value;
-            const dropoff = document.getElementById("dropoff").value;
-            const stops = Array.from(document.getElementsByClassName("stop")).map(input => input.value);
+            const pickup = document.getElementById('pickup').value;
+            const dropoff = document.getElementById('dropoff').value;
+            const stops = Array.from(document.getElementsByName('stops[]')).map(input => input.value);
 
-            if (!pickup || !dropoff) {
-                document.getElementById("result").innerText = "Please enter pickup and drop-off locations.";
+            const locations = [pickup, ...stops, dropoff];
+
+            const service = new google.maps.DistanceMatrixService();
+            service.getDistanceMatrix({
+                origins: [locations[0]],
+                destinations: locations.slice(1),
+                travelMode: 'DRIVING',
+                unitSystem: google.maps.UnitSystem.IMPERIAL
+            }, callback);
+        }
+
+        function callback(response, status) {
+            if (status !== 'OK') {
+                document.getElementById('result').innerText = 'Error calculating distance. Please check addresses.';
                 return;
             }
 
-            const service = new google.maps.DistanceMatrixService();
-            const allStops = [...stops, dropoff];
-
-            service.getDistanceMatrix({
-                origins: [pickup],
-                destinations: allStops,
-                travelMode: 'DRIVING',
-                unitSystem: google.maps.UnitSystem.IMPERIAL,
-            }, function(response, status) {
-                if (status !== 'OK') {
-                    document.getElementById("result").innerText = "Error calculating distance.";
-                } else {
-                    let totalMiles = 0;
-                    response.rows[0].elements.forEach(elem => {
-                        if (elem.status === "OK") {
-                            const miles = elem.distance.text.replace(' mi', '');
-                            totalMiles += parseFloat(miles);
-                        }
-                    });
-                    let quote = totalMiles * 1.25;
-                    if (quote < 40) quote = 40;
-                    document.getElementById("result").innerText = `Estimated Quote: $${quote.toFixed(2)}`;
+            let totalDistance = 0;
+            const elements = response.rows[0].elements;
+            for (let i = 0; i < elements.length; i++) {
+                if (elements[i].status === 'OK') {
+                    totalDistance += elements[i].distance.value; // in meters
                 }
-            });
-        }
+            }
 
-        function initAutocomplete() {
-            new google.maps.places.Autocomplete(document.getElementById("pickup"));
-            new google.maps.places.Autocomplete(document.getElementById("dropoff"));
+            const miles = totalDistance / 1609.34;
+            const rate = Math.max(40, miles * 1.25).toFixed(2);
+            document.getElementById('result').innerText = `Estimated Quote: $${rate}`;
         }
     </script>
-
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBxG_4lz6oOgFbOlPtSO_mVOQyCSjgRWWw&libraries=places&callback=initAutocomplete" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAA7vkhawpN9oxqBJITVq0ALeZPJdC6OVU&libraries=places"></script>
 </body>
 </html>
