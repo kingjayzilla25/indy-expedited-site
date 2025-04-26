@@ -7,98 +7,100 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f9f9f9;
+            text-align: center;
+            margin: 40px;
         }
         .container {
-            text-align: center;
+            display: inline-block;
+            text-align: left;
         }
         input, button {
-            margin: 8px 0;
-            padding: 10px;
-            width: 250px;
+            display: block;
+            margin: 10px 0;
+            width: 300px;
+            padding: 8px;
         }
-        #quoteResult {
-            margin-top: 15px;
-            font-weight: bold;
-        }
-        .back-home {
-            margin-top: 20px;
-            padding: 10px 20px;
+        .back-btn {
             background-color: #b30000;
             color: white;
-            text-decoration: none;
-            display: inline-block;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
+    <h1>Get a Quote</h1>
     <div class="container">
-        <h2>Get a Quote</h2>
-        <input id="pickup" type="text" placeholder="Pickup Location"><br>
-        <div id="stopsContainer">
-            <input class="stop" type="text" placeholder="Stop 1"><br>
-        </div>
-        <button onclick="addStop()">+ Add Stop</button><br>
-        <input id="dropoff" type="text" placeholder="Drop-off Location"><br>
+        <label>Pickup Location:</label>
+        <input id="pickup" type="text" placeholder="Enter pickup address">
+
+        <label>Stops:</label>
+        <div id="stops"></div>
+        <button onclick="addStop()">+ Add Stop</button>
+
+        <label>Drop-off Location:</label>
+        <input id="dropoff" type="text" placeholder="Enter drop-off address">
+
         <button onclick="calculateQuote()">Calculate Quote</button>
-        <div id="quoteResult"></div>
+
+        <p id="result"></p>
         <p>* $40 minimum to book *</p>
-        <a href="index.html" class="back-home">Back to Home</a>
+        <button class="back-btn" onclick="window.location.href='index.html'">Back to Home</button>
     </div>
 
     <script>
-        let stopCount = 1;
         function addStop() {
-            stopCount++;
-            const container = document.getElementById('stopsContainer');
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.placeholder = `Stop ${stopCount}`;
-            input.className = 'stop';
-            container.appendChild(input);
-            container.appendChild(document.createElement('br'));
-            autocompleteAddress(input);
+            const stopInput = document.createElement("input");
+            stopInput.type = "text";
+            stopInput.placeholder = "Enter stop address";
+            stopInput.className = "stop";
+            document.getElementById("stops").appendChild(stopInput);
+            new google.maps.places.Autocomplete(stopInput);
         }
 
         function calculateQuote() {
-            const pickup = document.getElementById('pickup').value;
-            const dropoff = document.getElementById('dropoff').value;
-            const stops = Array.from(document.getElementsByClassName('stop')).map(input => input.value);
-            const allPoints = [pickup, ...stops, dropoff];
+            const pickup = document.getElementById("pickup").value;
+            const dropoff = document.getElementById("dropoff").value;
+            const stops = Array.from(document.getElementsByClassName("stop")).map(input => input.value);
+
+            if (!pickup || !dropoff) {
+                document.getElementById("result").innerText = "Please enter pickup and drop-off locations.";
+                return;
+            }
 
             const service = new google.maps.DistanceMatrixService();
+            const allStops = [...stops, dropoff];
+
             service.getDistanceMatrix({
                 origins: [pickup],
-                destinations: [dropoff],
-                travelMode: 'DRIVING'
+                destinations: allStops,
+                travelMode: 'DRIVING',
+                unitSystem: google.maps.UnitSystem.IMPERIAL,
             }, function(response, status) {
                 if (status !== 'OK') {
-                    document.getElementById('quoteResult').innerText = 'Error calculating distance. Please check addresses.';
+                    document.getElementById("result").innerText = "Error calculating distance.";
                 } else {
-                    const distanceText = response.rows[0].elements[0].distance.text;
-                    const miles = parseFloat(distanceText.replace('mi', '').trim());
-                    const quote = Math.max(40, miles * 1.25);
-                    document.getElementById('quoteResult').innerText = `Estimated Quote: $${quote.toFixed(2)}`;
+                    let totalMiles = 0;
+                    response.rows[0].elements.forEach(elem => {
+                        if (elem.status === "OK") {
+                            const miles = elem.distance.text.replace(' mi', '');
+                            totalMiles += parseFloat(miles);
+                        }
+                    });
+                    let quote = totalMiles * 1.25;
+                    if (quote < 40) quote = 40;
+                    document.getElementById("result").innerText = `Estimated Quote: $${quote.toFixed(2)}`;
                 }
             });
         }
 
-        function autocompleteAddress(element) {
-            new google.maps.places.Autocomplete(element);
+        function initAutocomplete() {
+            new google.maps.places.Autocomplete(document.getElementById("pickup"));
+            new google.maps.places.Autocomplete(document.getElementById("dropoff"));
         }
-
-        document.addEventListener("DOMContentLoaded", function() {
-            autocompleteAddress(document.getElementById('pickup'));
-            autocompleteAddress(document.getElementById('dropoff'));
-            autocompleteAddress(document.querySelector('.stop'));
-        });
     </script>
 
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBxG_4lz6oOgFbOlPtSO_mVOQyCSjgRWWw&libraries=places"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBxG_4lz6oOgFbOlPtSO_mVOQyCSjgRWWw&libraries=places&callback=initAutocomplete" async defer></script>
 </body>
-</html> 
+</html>
