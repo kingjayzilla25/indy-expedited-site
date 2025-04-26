@@ -1,39 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Get a Quote - Indy Expedited</title>
-  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
+    h1 { color: #c10000; }
+    .stop-input { margin-bottom: 10px; }
+    button { margin: 10px 0; padding: 10px; }
+    #result { margin-top: 20px; font-size: 18px; }
+    .disclaimer { margin-top: 30px; color: #555; font-size: 14px; }
+    .btn { display: inline-block; background: #c10000; color: #fff; padding: 10px 20px; text-decoration: none; margin-top: 20px; }
+  </style>
 </head>
 <body>
   <h1>Get a Quote</h1>
   <form id="quoteForm">
-    <label>Pickup Address:</label>
-    <input type="text" id="pickup" required />
+    <div>
+      <label>Pickup Location:</label><br>
+      <input type="text" id="pickup" required>
+    </div>
 
-    <label>Drop-off Address:</label>
-    <input type="text" id="dropoff" required />
+    <div id="stopsContainer">
+      <label>Stops:</label><br>
+      <div class="stop-input">
+        <input type="text" name="stops[]" placeholder="Stop 1">
+      </div>
+    </div>
+    <button type="button" onclick="addStop()">+ Add Stop</button><br><br>
 
-    <label>Additional Stops (optional, comma separated):</label>
-    <input type="text" id="stops" />
+    <div>
+      <label>Drop-off Location:</label><br>
+      <input type="text" id="dropoff" required>
+    </div><br>
 
     <button type="submit">Calculate Quote</button>
   </form>
 
   <div id="result"></div>
 
+  <div class="disclaimer">* $40 minimum to book *</div>
+
   <a href="index.html" class="btn">Back to Home</a>
 
   <script>
-    document.getElementById("quoteForm").addEventListener("submit", function(e) {
+    function addStop() {
+      const container = document.getElementById('stopsContainer');
+      const stopCount = container.getElementsByClassName('stop-input').length + 1;
+      const div = document.createElement('div');
+      div.className = 'stop-input';
+      div.innerHTML = '<input type="text" name="stops[]" placeholder="Stop ' + stopCount + '">';
+      container.appendChild(div);
+    }
+
+    document.getElementById('quoteForm').addEventListener('submit', function(e) {
       e.preventDefault();
-      const stopsCount = document.getElementById('stops').value ? document.getElementById('stops').value.split(',').length : 0;
-      const totalMiles = 50 + stopsCount * 10;
-      const price = totalMiles * 1.25;
-      document.getElementById("result").innerText = 
-        `Estimated Distance: ${totalMiles} miles\nEstimated Price: $${price.toFixed(2)}`;
+      const pickup = document.getElementById('pickup').value;
+      const dropoff = document.getElementById('dropoff').value;
+      const stops = Array.from(document.getElementsByName('stops[]')).map(input => input.value).filter(val => val);
+
+      const service = new google.maps.DistanceMatrixService();
+      const destinations = [...stops, dropoff];
+
+      service.getDistanceMatrix({
+        origins: [pickup],
+        destinations: destinations,
+        travelMode: 'DRIVING',
+        unitSystem: google.maps.UnitSystem.IMPERIAL,
+      }, function(response, status) {
+        if (status !== 'OK') {
+          document.getElementById('result').innerText = 'Error calculating distance. Please check addresses.';
+        } else {
+          let totalMiles = 0;
+          response.rows[0].elements.forEach(elem => {
+            if (elem.status === "OK") {
+              const miles = elem.distance.text.replace(' mi', '');
+              totalMiles += parseFloat(miles);
+            }
+          });
+          const price = Math.max(totalMiles * 1.25, 40);
+          document.getElementById('result').innerText = 
+            `Estimated Distance: ${totalMiles.toFixed(2)} miles\nEstimated Price: $${price.toFixed(2)}`;
+        }
+      });
     });
   </script>
+
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBxG_4lz6oOgFbOlPtSO_mVOQyCSjgRWWw"></script>
 </body>
 </html>
