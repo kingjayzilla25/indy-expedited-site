@@ -8,7 +8,7 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            margin-top: 50px;
+            margin-top: 30px;
         }
         form {
             display: inline-block;
@@ -20,36 +20,64 @@
             width: 300px;
             padding: 8px;
         }
-        button {
-            width: 316px;
+        button.submit-btn {
+            background-color: #b30000;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button.submit-btn:hover {
+            background-color: #800000;
         }
     </style>
 </head>
 <body>
     <h1>Book a Delivery</h1>
-    <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+    <form action="https://formspree.io/f/mrbqbpdv" method="POST">
         <label>Full Name:</label>
-        <input type="text" name="name" required>
+        <input type="text" name="Full Name" required>
 
         <label>Email:</label>
-        <input type="email" name="email" required>
+        <input type="email" name="Email" required>
 
         <label>Phone Number (optional):</label>
-        <input type="tel" name="phone">
+        <input type="tel" name="Phone">
 
         <label>Pick-up Time and Date:</label>
-        <input type="time" name="pickup_time" required>
-        <input type="date" name="pickup_date" required>
+        <input type="time" name="Pickup Time" required>
+        <input type="date" name="Pickup Date" required>
 
-        <label>Pickup & Drop-off Addresses:</label>
-        <textarea name="addresses" rows="3" required></textarea>
+        <label>Pickup Address:</label>
+        <input type="text" name="Pickup Address" required>
+
+        <label>Additional Stops:</label>
+        <div id="stopsContainer">
+            <input type="text" name="Stops[]" placeholder="Stop 1">
+        </div>
+        <button type="button" onclick="addStop()">+ Add Stop</button>
+
+        <label>Drop-off Address:</label>
+        <input type="text" name="Drop-off Address" required>
 
         <label>Additional Notes:</label>
-        <textarea name="notes" rows="3"></textarea>
+        <textarea name="Additional Notes" rows="3"></textarea>
 
-        <button type="submit">Submit Booking</button>
+        <button type="submit" class="submit-btn">Submit Booking</button>
     </form>
     <br>
     <button onclick="window.location.href='index.html'">Back to Home</button>
+
+    <script>
+        let stopCount = 1;
+        function addStop() {
+            stopCount++;
+            const container = document.getElementById('stopsContainer');
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.name = 'Stops[]';
+            input.placeholder = `Stop ${stopCount}`;
+            container.appendChild(input);
+        }
+    </script>
 </body>
 </html>
