@@ -4,57 +4,36 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Get a Quote - Indy Expedited</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      background-color: #f4f4f4;
-    }
-    h1 {
-      color: #c10000;
-    }
-    form input, form button {
-      width: 100%;
-      padding: 8px;
-      margin: 10px 0;
-    }
-    #result {
-      margin-top: 20px;
-      font-size: 18px;
-      color: #000;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <h1>Get a Quote</h1>
   <form id="quoteForm">
-    <label for="pickup">Pickup Address:</label>
+    <label>Pickup Address:</label>
     <input type="text" id="pickup" required />
 
-    <label for="dropoff">Drop-off Address:</label>
+    <label>Drop-off Address:</label>
     <input type="text" id="dropoff" required />
 
-    <label for="stops">Additional Stops (optional, comma separated):</label>
-    <input type="text" id="stops" placeholder="e.g. Lafayette, Evansville" />
+    <label>Additional Stops (optional, comma separated):</label>
+    <input type="text" id="stops" />
 
     <button type="submit">Calculate Quote</button>
   </form>
 
   <div id="result"></div>
 
+  <a href="index.html" class="btn">Back to Home</a>
+
   <script>
     document.getElementById("quoteForm").addEventListener("submit", function(e) {
       e.preventDefault();
-      const pickup = document.getElementById("pickup").value;
-      const dropoff = document.getElementById("dropoff").value;
-      const stops = document.getElementById("stops").value;
-
-      const stopsCount = stops ? stops.split(',').length : 0;
-      const baseMiles = 50; // Simulated mileage base
-      const extraMiles = stopsCount * 10; // Simulated 10 miles per stop
-      const totalMiles = baseMiles + extraMiles;
-      const rate = 1.25;
-      const estimate = totalMiles * rate;
-
-      document.getElementById("result").innerText =
-        `Estimated Distance: ${totalMiles} miles
+      const stopsCount = document.getElementById('stops').value ? document.getElementById('stops').value.split(',').length : 0;
+      const totalMiles = 50 + stopsCount * 10;
+      const price = totalMiles * 1.25;
+      document.getElementById("result").innerText = 
+        `Estimated Distance: ${totalMiles} miles\nEstimated Price: $${price.toFixed(2)}`;
+    });
+  </script>
+</body>
+</html>
