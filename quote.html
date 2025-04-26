@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,76 +8,84 @@
         body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
         input, button { margin: 5px; padding: 8px; }
         .stop-input { display: block; margin: 5px auto; }
+        #bookNowBtn { margin-top: 15px; background-color: #b30000; color: white; border: none; padding: 10px 20px; cursor: pointer; display: none; }
     </style>
 </head>
 <body>
     <h1>Get a Quote</h1>
     <div>
         <label>Pickup Location:</label><br>
-        <input type="text" id="pickup" placeholder="Enter pickup address"><br><label>Stops:</label><br>
-    <div id="stops"></div>
-    <button onclick="addStop()">+ Add Stop</button><br>
+        <input type="text" id="pickup" placeholder="Enter pickup address"><br>
 
-    <label>Drop-off Location:</label><br>
-    <input type="text" id="dropoff" placeholder="Enter drop-off address"><br>
+        <label>Stops:</label><br>
+        <div id="stops"></div>
+        <button onclick="addStop()">+ Add Stop</button><br>
 
-    <button onclick="calculateQuote()">Calculate Quote</button>
+        <label>Drop-off Location:</label><br>
+        <input type="text" id="dropoff" placeholder="Enter drop-off address"><br>
 
-    <h3 id="result"></h3>
-    <p>* $40 minimum to book *</p>
-    <button onclick="window.location.href='index.html'">Back to Home</button>
-</div>
+        <button onclick="calculateQuote()">Calculate Quote</button>
 
-<script>
-    let stopCount = 0;
-    function addStop() {
-        stopCount++;
-        const stopInput = document.createElement('input');
-        stopInput.type = 'text';
-        stopInput.placeholder = 'Stop ' + stopCount;
-        stopInput.className = 'stop-input';
-        document.getElementById('stops').appendChild(stopInput);
-    }
+        <h3 id="result"></h3>
+        <p>* $40 minimum to book *</p>
 
-    function calculateQuote() {
-        const pickup = document.getElementById('pickup').value;
-        const dropoff = document.getElementById('dropoff').value;
-        const stopElements = document.querySelectorAll('.stop-input');
+        <!-- Book Now Button -->
+        <button id="bookNowBtn" onclick="window.location.href='booking.html'">Book Now</button>
 
-        let locations = [pickup];
-        stopElements.forEach(stop => {
-            if (stop.value.trim() !== '') locations.push(stop.value);
-        });
-        locations.push(dropoff);
+        <br><br>
+        <button onclick="window.location.href='index.html'">Back to Home</button>
+    </div>
 
-        const service = new google.maps.DistanceMatrixService();
-        let totalDistance = 0;
-
-        function calculateSegment(index) {
-            if (index >= locations.length - 1) {
-                const quote = Math.max(40, (totalDistance * 1.25).toFixed(2));
-                document.getElementById('result').innerText = `Estimated Quote: $${quote}`;
-                return;
-            }
-            service.getDistanceMatrix({
-                origins: [locations[index]],
-                destinations: [locations[index + 1]],
-                travelMode: 'DRIVING',
-            }, (response, status) => {
-                if (status !== 'OK') {
-                    document.getElementById('result').innerText = 'Error calculating distance.';
-                } else {
-                    const distanceInMiles = response.rows[0].elements[0].distance.value / 1609.34;
-                    totalDistance += distanceInMiles;
-                    calculateSegment(index + 1);
-                }
-            });
+    <script>
+        let stopCount = 0;
+        function addStop() {
+            stopCount++;
+            const stopInput = document.createElement('input');
+            stopInput.type = 'text';
+            stopInput.placeholder = 'Stop ' + stopCount;
+            stopInput.className = 'stop-input';
+            document.getElementById('stops').appendChild(stopInput);
         }
-        calculateSegment(0);
-    }
-</script>
 
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAA7vkhawpN9oxqBJITVq0ALeZPJdC6OVU&libraries=places"></script>
+        function calculateQuote() {
+            const pickup = document.getElementById('pickup').value;
+            const dropoff = document.getElementById('dropoff').value;
+            const stopElements = document.querySelectorAll('.stop-input');
 
+            let locations = [pickup];
+            stopElements.forEach(stop => {
+                if (stop.value.trim() !== '') locations.push(stop.value);
+            });
+            locations.push(dropoff);
+
+            const service = new google.maps.DistanceMatrixService();
+            let totalDistance = 0;
+
+            function calculateSegment(index) {
+                if (index >= locations.length - 1) {
+                    const quote = Math.max(40, (totalDistance * 1.25).toFixed(2));
+                    document.getElementById('result').innerText = `Estimated Quote: $${quote}`;
+                    document.getElementById('bookNowBtn').style.display = 'inline-block';
+                    return;
+                }
+                service.getDistanceMatrix({
+                    origins: [locations[index]],
+                    destinations: [locations[index + 1]],
+                    travelMode: 'DRIVING',
+                }, (response, status) => {
+                    if (status !== 'OK') {
+                        document.getElementById('result').innerText = 'Error calculating distance.';
+                    } else {
+                        const distanceInMiles = response.rows[0].elements[0].distance.value / 1609.34;
+                        totalDistance += distanceInMiles;
+                        calculateSegment(index + 1);
+                    }
+                });
+            }
+            calculateSegment(0);
+        }
+    </script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAA7vkhawpN9oxqBJITVq0ALeZPJdC6OVU&libraries=places"></script>
 </body>
 </html>
