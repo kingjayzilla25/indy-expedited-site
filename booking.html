@@ -3,53 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book a Delivery</title>
+    <title>Book a Delivery - Indy Expedited</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
             text-align: center;
-            width: 300px;
+            margin-top: 50px;
+        }
+        form {
+            display: inline-block;
+            text-align: left;
         }
         input, textarea, button {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            box-sizing: border-box;
+            display: block;
+            margin: 10px 0;
+            width: 300px;
+            padding: 8px;
         }
         button {
-            background-color: #b30000;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #800000;
+            width: 316px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Book a Delivery</h2>
-        <form action="https://formspree.io/f/mrbqbpdv" method="POST">
-            <input type="text" name="Full Name" placeholder="Full Name" required>
-            <input type="email" name="Email" placeholder="Email" required>
-            <input type="tel" name="Phone" placeholder="Phone Number (optional)">
-            <input type="date" name="Delivery Date" required>
-            <input type="time" name="Delivery Time" required>
-            <input type="text" name="Pickup Address" placeholder="Pickup Address" required>
-            <input type="text" name="Drop-off Address" placeholder="Drop-off Address" required>
-            <textarea name="Additional Notes" placeholder="Additional Notes" rows="3"></textarea>
-            <button type="submit">Submit Booking</button>
-        </form>
-        <br>
-        <button onclick="window.location.href='index.html'">Back to Home</button>
-    </div>
+    <h1>Book a Delivery</h1>
+    <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+        <label>Full Name:</label>
+        <input type="text" name="name" required>
+
+        <label>Email:</label>
+        <input type="email" name="email" required>
+
+        <label>Phone Number (optional):</label>
+        <input type="tel" name="phone">
+
+        <label>Pick-up Time and Date:</label>
+        <input type="time" name="pickup_time" required>
+        <input type="date" name="pickup_date" required>
+
+        <label>Pickup & Drop-off Addresses:</label>
+        <textarea name="addresses" rows="3" required></textarea>
+
+        <label>Additional Notes:</label>
+        <textarea name="notes" rows="3"></textarea>
+
+        <button type="submit">Submit Booking</button>
+    </form>
+    <br>
+    <button onclick="window.location.href='index.html'">Back to Home</button>
 </body>
 </html>
