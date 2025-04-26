@@ -1,46 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Book a Delivery - Indy Expedited</title>
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book a Delivery</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            width: 300px;
+        }
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #b30000;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #800000;
+        }
+    </style>
 </head>
 <body>
-  <h1>Book a Delivery</h1>
-  <form action="https://formspree.io/f/mrbqbpdv" method="POST" id="bookingForm">
-    <input type="text" name="name" placeholder="Full Name" required />
-    <input type="email" name="email" placeholder="Email" required />
-    <input type="text" name="phone" placeholder="Phone Number (optional)" />
-    <input type="datetime-local" name="appointment" required />
-    <textarea name="addresses" placeholder="Pickup & Drop-off Addresses" required></textarea>
-    <textarea name="notes" placeholder="Additional Notes"></textarea>
-    <button type="submit">Submit Booking</button>
-  </form>
-
-  <div id="confirmation"></div>
-
-  <a href="index.html" class="btn">Back to Home</a>
-
-  <script>
-    document.getElementById('bookingForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const form = e.target;
-      fetch(form.action, {
-        method: 'POST',
-        body: new FormData(form),
-        headers: { 'Accept': 'application/json' }
-      }).then(response => {
-        if (response.ok) {
-          document.getElementById('confirmation').innerText = 
-            "✅ We have received your booking request and will contact you soon.";
-          form.reset();
-        } else {
-          document.getElementById('confirmation').innerText = 
-            "❌ There was an issue submitting your booking. Please try again.";
-        }
-      });
-    });
-  </script>
+    <div class="container">
+        <h2>Book a Delivery</h2>
+        <form action="https://formspree.io/f/mrbqbpdv" method="POST">
+            <input type="text" name="Full Name" placeholder="Full Name" required>
+            <input type="email" name="Email" placeholder="Email" required>
+            <input type="tel" name="Phone" placeholder="Phone Number (optional)">
+            <input type="date" name="Delivery Date" required>
+            <input type="time" name="Delivery Time" required>
+            <input type="text" name="Pickup Address" placeholder="Pickup Address" required>
+            <input type="text" name="Drop-off Address" placeholder="Drop-off Address" required>
+            <textarea name="Additional Notes" placeholder="Additional Notes" rows="3"></textarea>
+            <button type="submit">Submit Booking</button>
+        </form>
+        <br>
+        <button onclick="window.location.href='index.html'">Back to Home</button>
+    </div>
 </body>
 </html>
