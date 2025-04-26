@@ -1,82 +1,44 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Get a Quote - Indy Expedited</title>
+    <title>Indy Expedited | Same-Day Delivery in Indianapolis & Chicago</title>
+    <meta name="description" content="Fast, eco-friendly courier services for auto parts, medical supplies, and urgent deliveries across Indianapolis, Chicago, and surrounding areas. Book now!">
+    <meta name="keywords" content="Indianapolis delivery service, Chicago courier, same-day delivery Indiana, auto parts courier, medical delivery, EV courier, Indy Expedited">
+    <meta name="author" content="Indy Expedited">
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-        input, button { margin: 5px; padding: 8px; }
-        .stop-input { display: block; margin: 5px auto; }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .btn {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px 20px;
+            background-color: #b30000;
+            color: white;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
-    <h1>Get a Quote</h1>
+    <h1>Welcome to Indy Expedited</h1>
+    <p>Fast & Reliable EV Deliveries in <strong>Indianapolis</strong>, <strong>Chicago</strong>, and surrounding areas.</p>
+    <p>Specializing in Auto Parts, Medical Supplies, and Urgent Same-Day Deliveries.</p>
+
     <div>
-        <label>Pickup Location:</label><br>
-        <input type="text" id="pickup" placeholder="Enter pickup address"><br><label>Stops:</label><br>
-    <div id="stops"></div>
-    <button onclick="addStop()">+ Add Stop</button><br>
+        <a href="quote.html" class="btn">Get a Quote</a>
+        <a href="booking.html" class="btn">Book Now</a>
+    </div>
 
-    <label>Drop-off Location:</label><br>
-    <input type="text" id="dropoff" placeholder="Enter drop-off address"><br>
+    <h3>Contact Us</h3>
+    <p>Email: booking@indyexpedited.com</p>
+    <p>Phone: 708-488-7038</p>
 
-    <button onclick="calculateQuote()">Calculate Quote</button>
-
-    <h3 id="result"></h3>
-    <p>* $40 minimum to book *</p>
-    <button onclick="window.location.href='index.html'">Back to Home</button>
-</div>
-
-<script>
-    let stopCount = 0;
-    function addStop() {
-        stopCount++;
-        const stopInput = document.createElement('input');
-        stopInput.type = 'text';
-        stopInput.placeholder = 'Stop ' + stopCount;
-        stopInput.className = 'stop-input';
-        document.getElementById('stops').appendChild(stopInput);
-    }
-
-    function calculateQuote() {
-        const pickup = document.getElementById('pickup').value;
-        const dropoff = document.getElementById('dropoff').value;
-        const stopElements = document.querySelectorAll('.stop-input');
-
-        let locations = [pickup];
-        stopElements.forEach(stop => {
-            if (stop.value.trim() !== '') locations.push(stop.value);
-        });
-        locations.push(dropoff);
-
-        const service = new google.maps.DistanceMatrixService();
-        let totalDistance = 0;
-
-        function calculateSegment(index) {
-            if (index >= locations.length - 1) {
-                const quote = Math.max(40, (totalDistance * 1.25).toFixed(2));
-                document.getElementById('result').innerText = `Estimated Quote: $${quote}`;
-                return;
-            }
-            service.getDistanceMatrix({
-                origins: [locations[index]],
-                destinations: [locations[index + 1]],
-                travelMode: 'DRIVING',
-            }, (response, status) => {
-                if (status !== 'OK') {
-                    document.getElementById('result').innerText = 'Error calculating distance.';
-                } else {
-                    const distanceInMiles = response.rows[0].elements[0].distance.value / 1609.34;
-                    totalDistance += distanceInMiles;
-                    calculateSegment(index + 1);
-                }
-            });
-        }
-        calculateSegment(0);
-    }
-</script>
-
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAA7vkhawpN9oxqBJITVq0ALeZPJdC6OVU&libraries=places"></script>
-
+    <footer style="margin-top: 30px;">
+        <p>© 2025 Indy Expedited | Serving Indiana & Illinois with eco-friendly courier solutions.</p>
+    </footer>
 </body>
 </html>
