@@ -3,80 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book a Delivery - Indy Expedited</title>
+    <title>Book a Delivery</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            margin-top: 30px;
+            margin: 30px;
         }
         form {
             display: inline-block;
             text-align: left;
+            max-width: 400px;
+            width: 100%;
         }
-        input, textarea, button {
+        label, input, textarea, select, button {
             display: block;
-            margin: 10px 0;
-            width: 300px;
-            padding: 8px;
+            width: 100%;
+            margin-bottom: 15px;
         }
-        button.submit-btn {
-            background-color: #b30000;
-            color: white;
-            border: none;
+        .add-stop-btn, .submit-btn {
+            width: auto;
             cursor: pointer;
-        }
-        button.submit-btn:hover {
-            background-color: #800000;
         }
     </style>
 </head>
 <body>
     <h1>Book a Delivery</h1>
-    <form action="https://formspree.io/f/mrbqbpdv" method="POST">
-        <label>Full Name:</label>
-        <input type="text" name="Full Name" required>
+    <form action="https://formspree.io/f/your_form_id" method="POST">
+        <label for="name">Full Name:</label>
+        <input type="text" id="name" name="name" required>
 
-        <label>Email:</label>
-        <input type="email" name="Email" required>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
 
-        <label>Phone Number (optional):</label>
-        <input type="tel" name="Phone">
+        <label for="phone">Phone Number (optional):</label>
+        <input type="tel" id="phone" name="phone">
 
-        <label>Pick-up Time and Date:</label>
-        <input type="time" name="Pickup Time" required>
-        <input type="date" name="Pickup Date" required>
+        <label for="datetime">Pick-up Time and Date:</label>
+        <input type="time" id="time" name="pickup_time" required>
+        <input type="date" id="date" name="pickup_date" required>
 
-        <label>Pickup Address:</label>
-        <input type="text" name="Pickup Address" required>
+        <label for="pickup">Pickup Address:</label>
+        <input type="text" id="pickup" name="pickup_address" required>
 
         <label>Additional Stops:</label>
-        <div id="stopsContainer">
-            <input type="text" name="Stops[]" placeholder="Stop 1">
+        <div id="stops">
+            <input type="text" name="stops[]" placeholder="Stop 1">
         </div>
-        <button type="button" onclick="addStop()">+ Add Stop</button>
+        <button type="button" class="add-stop-btn" onclick="addStop()">+ Add Stop</button>
 
-        <label>Drop-off Address:</label>
-        <input type="text" name="Drop-off Address" required>
+        <label for="dropoff">Drop-off Address:</label>
+        <input type="text" id="dropoff" name="dropoff_address" required>
 
-        <label>Additional Notes:</label>
-        <textarea name="Additional Notes" rows="3"></textarea>
+        <label for="notes">Additional Notes:</label>
+        <textarea id="notes" name="notes" rows="4"></textarea>
 
         <button type="submit" class="submit-btn">Submit Booking</button>
     </form>
-    <br>
-    <button onclick="window.location.href='index.html'">Back to Home</button>
+
+    <div style="margin-top: 20px; text-align: center;">
+        <button onclick="window.location.href='index.html'" style="padding: 10px 20px;">Back to Home</button>
+    </div>
 
     <script>
-        let stopCount = 1;
         function addStop() {
-            stopCount++;
-            const container = document.getElementById('stopsContainer');
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.name = 'Stops[]';
-            input.placeholder = `Stop ${stopCount}`;
-            container.appendChild(input);
+            const stopsDiv = document.getElementById('stops');
+            const stopCount = stopsDiv.getElementsByTagName('input').length + 1;
+            const newStop = document.createElement('input');
+            newStop.type = 'text';
+            newStop.name = 'stops[]';
+            newStop.placeholder = 'Stop ' + stopCount;
+            stopsDiv.appendChild(newStop);
         }
     </script>
 </body>
