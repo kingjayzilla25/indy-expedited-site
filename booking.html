@@ -1,120 +1,101 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZW0G67GQ5L"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-ZW0G67GQ5L');
-</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book a Delivery - Indy Expedited</title>
+
+    <!-- Google Analytics Tag -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZW6G67GQ5L"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-ZW6G67GQ5L');
+    </script>
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 20px;
-        }
-        form {
-            display: inline-block;
-            text-align: left;
-            margin-top: 20px;
-        }
-        .hidden {
-            display: none;
-        }
-        button {
-            background-color: #8B0000;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        #backBtn {
-            background-color: lightgray;
-            color: black;
-        }
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+        form { display: inline-block; text-align: left; }
+        input, textarea, button { display: block; margin: 10px 0; width: 300px; padding: 8px; }
+        .add-stop { margin-bottom: 20px; }
+        .back-button { margin-top: 20px; padding: 10px 20px; }
     </style>
 </head>
-<body><h1>Book a Delivery</h1>
+<body>
+    <h1>Book a Delivery</h1>
+    <form id="bookingForm" action="https://formspree.io/f/mrbqbpdv" method="POST">
+        <label>Full Name:</label>
+        <input type="text" name="name" required>
 
-<form id="bookingForm" action="https://formspree.io/f/mrbqbpdv" method="POST">
-    <label>Full Name:</label><br>
-    <input type="text" name="name" required><br><br>
+        <label>Email:</label>
+        <input type="email" name="email" required>
 
-    <label>Email:</label><br>
-    <input type="email" name="email" required><br><br>
+        <label>Phone Number (optional):</label>
+        <input type="tel" name="phone">
 
-    <label>Phone Number (optional):</label><br>
-    <input type="text" name="phone"><br><br>
+        <label>Pick-up Time:</label>
+        <input type="time" name="pickup_time" required>
 
-    <label>Pick-up Time:</label><br>
-    <input type="time" name="pickup_time" required><br><br>
+        <label>Pick-up Date:</label>
+        <input type="date" name="pickup_date" required>
 
-    <label>Pick-up Date:</label><br>
-    <input type="date" name="pickup_date" required><br><br>
+        <label>Pickup Address:</label>
+        <input type="text" name="pickup_address" required>
 
-    <label>Pickup Address:</label><br>
-    <input type="text" name="pickup_address" required><br><br>
+        <label>Additional Stops:</label>
+        <div id="stops">
+            <input type="text" name="stops[]" placeholder="Stop 1">
+        </div>
+        <button type="button" class="add-stop" onclick="addStop()">+ Add Stop</button>
 
-    <label>Additional Stops:</label><br>
-    <div id="stopsContainer">
-        <input type="text" name="stops[]">
+        <label>Drop-off Address:</label>
+        <input type="text" name="dropoff_address" required>
+
+        <label>Additional Notes:</label>
+        <textarea name="notes" rows="4" placeholder="Any special instructions..."></textarea>
+
+        <button type="submit">Submit Booking</button>
+    </form>
+
+    <div id="thankYouMessage" class="hidden">
+        <h2>Thank you for booking with Indy Expedited!</h2>
+        <p>We will contact you shortly.</p>
     </div>
-    <button type="button" onclick="addStop()">+ Add Stop</button><br><br>
 
-    <label>Drop-off Address:</label><br>
-    <input type="text" name="dropoff_address" required><br><br>
+    <button class="back-button" onclick="window.location.href='index.html'">Back to Home</button>
 
-    <label>Additional Notes:</label><br>
-    <textarea name="notes"></textarea><br><br>
+    <script>
+        function addStop() {
+            const stopsDiv = document.getElementById('stops');
+            const stopCount = stopsDiv.getElementsByTagName('input').length + 1;
+            const newStop = document.createElement('input');
+            newStop.type = 'text';
+            newStop.name = 'stops[]';
+            newStop.placeholder = 'Stop ' + stopCount;
+            stopsDiv.appendChild(newStop);
+        }
 
-    <button type="submit">Submit Booking</button>
-</form>
+        document.getElementById('bookingForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
 
-<div id="thankYouMessage" class="hidden">
-    <h2>Thank you for booking with Indy Expedited!</h2>
-    <p>We will contact you shortly.</p>
-</div>
-
-<br>
-<button id="backBtn" onclick="window.location.href='index.html'">Back to Home</button>
-
-<script>
-    function addStop() {
-        const container = document.getElementById('stopsContainer');
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.name = 'stops[]';
-        container.appendChild(document.createElement('br'));
-        container.appendChild(input);
-    }
-
-    document.getElementById('bookingForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-        const form = event.target;
-        const formData = new FormData(form);
-
-        fetch(form.action, {
-            method: 'POST',
-            body: formData,
-            headers: { 'Accept': 'application/json' }
-        }).then(response => {
-            if (response.ok) {
-                form.classList.add('hidden');
-                document.getElementById('thankYouMessage').classList.remove('hidden');
-            } else {
-                alert('There was an issue submitting the form. Please try again.');
-            }
-        }).catch(error => {
-            alert('Error submitting form.');
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: { 'Accept': 'application/json' }
+            }).then(response => {
+                if (response.ok) {
+                    form.classList.add('hidden');
+                    document.getElementById('thankYouMessage').classList.remove('hidden');
+                } else {
+                    alert('There was an issue submitting the form. Please try again.');
+                }
+            }).catch(error => {
+                alert('Error submitting form.');
+            });
         });
-    });
-</script>
-
+    </script>
 </body>
 </html>
