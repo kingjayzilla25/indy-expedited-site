@@ -37,7 +37,7 @@
         <button onclick="calculateQuote()">Calculate Quote</button>
 
         <h3 id="result"></h3>
-        <p>* $40 minimum to book *</p>
+        <p>* $80 minimum to book *</p>
 
         <button id="bookNowBtn" onclick="window.location.href='booking.html'">Book Now</button>
 
@@ -72,7 +72,7 @@
 
             function calculateSegment(index) {
                 if (index >= locations.length - 1) {
-                    const quote = Math.max(40, (totalDistance * 1.25).toFixed(2));
+                    const quote = Math.max(80, (totalDistance * 1.25).toFixed(2));
                     document.getElementById('result').innerText = `Estimated Quote: $${quote}`;
                     document.getElementById('bookNowBtn').style.display = 'inline-block';
                     return;
