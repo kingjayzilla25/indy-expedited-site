@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,37 +8,24 @@
   <link rel="stylesheet" href="styles.css">
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAA7vkhawpN9oxqBJITVq0ALeZPJdC6OVU&libraries=places"></script>
 </head>
-<body>
-
-  <h1 style="text-align: center; margin-top: 20px;">Get a Delivery Quote</h1>
-
-  <form id="quoteForm" style="max-width: 600px; margin: 20px auto;">
+<body> <h1 style="text-align: center; margin-top: 20px;">Get a Delivery Quote</h1> <form id="quoteForm" style="max-width: 600px; margin: 20px auto;">
     <label for="origin">Pick Up Address:</label><br>
-    <input type="text" id="origin" name="origin" required><br><br>
+    <input type="text" id="origin" name="origin" required><br><br><label for="stops">Additional Stops (optional):</label><br>
+<input type="text" id="stops" name="stops" placeholder="Separate multiple stops with a semicolon (;)" ><br><br>
 
-    <label for="stops">Additional Stops (optional):</label><br>
-    <input type="text" id="stops" name="stops"><br><br>
+<label for="destination">Drop Off Address:</label><br>
+<input type="text" id="destination" name="destination" required><br><br>
 
-    <label for="destination">Drop Off Address:</label><br>
-    <input type="text" id="destination" name="destination" required><br><br>
+<button type="button" onclick="calculateQuote()" style="background-color: black; color: white; padding: 10px 20px; border: none; cursor: pointer;">Calculate Quote</button>
 
-    <button type="button" onclick="calculateQuote()" style="background-color: black; color: white; padding: 10px 20px; border: none; cursor: pointer;">Calculate Quote</button>
-  </form>
-
-  <div id="quoteResult" style="text-align: center; margin-top: 20px; font-size: 18px;"></div>
-
-  <div id="bookNowButton" style="text-align: center; margin-top: 20px; display: none;">
+  </form> <div id="quoteResult" style="text-align: center; margin-top: 20px; font-size: 18px;"></div> <div id="bookNowButton" style="text-align: center; margin-top: 20px; display: none;">
     <a href="booking.html" style="text-decoration: none; background-color: red; color: white; padding: 10px 20px; border-radius: 5px;">Book This Delivery</a>
-  </div>
-
-  <div style="text-align: center; margin-top: 30px;">
+  </div> <div style="text-align: center; margin-top: 30px;">
     <a href="index.html" style="text-decoration: none; background-color: black; color: white; padding: 10px 20px; border-radius: 5px;">Back to Home</a>
-  </div>
-
-  <script>
+  </div> <script>
     function calculateQuote() {
       const origin = document.getElementById('origin').value;
-      const stops = document.getElementById('stops').value;
+      const stopsInput = document.getElementById('stops').value;
       const destination = document.getElementById('destination').value;
 
       if (!origin || !destination) {
@@ -47,37 +33,46 @@
         return;
       }
 
-      const service = new google.maps.DistanceMatrixService();
       let addresses = [origin];
-      if (stops.trim() !== '') addresses.push(stops);
+
+      if (stopsInput.trim() !== '') {
+        let stopList = stopsInput.split(';').map(item => item.trim());
+        addresses = addresses.concat(stopList);
+      }
+
       addresses.push(destination);
 
-      service.getDistanceMatrix({
-        origins: addresses.slice(0, -1),
-        destinations: addresses.slice(1),
-        travelMode: 'DRIVING',
-        unitSystem: google.maps.UnitSystem.IMPERIAL,
-      }, function(response, status) {
-        if (status !== 'OK') {
-          alert('Error calculating distances: ' + status);
-        } else {
-          let totalDistance = 0;
-          const elements = response.rows;
-          for (let i = 0; i < elements.length; i++) {
-            const element = elements[i].elements[0];
-            if (element.status === 'OK') {
-              totalDistance += element.distance.value; // meters
-            }
-          }
-          totalDistance /= 1609.34; // Convert meters to miles
-          const cost = Math.max(totalDistance * 1.25, 80);
+      const service = new google.maps.DistanceMatrixService();
 
-          document.getElementById('quoteResult').innerHTML = `Estimated Distance: ${totalDistance.toFixed(2)} miles<br>Estimated Cost: $${cost.toFixed(2)}`;
-          document.getElementById('bookNowButton').style.display = 'block';
-        }
+      let totalDistance = 0;
+      let requests = [];
+
+      for (let i = 0; i < addresses.length - 1; i++) {
+        requests.push({
+          origins: [addresses[i]],
+          destinations: [addresses[i + 1]],
+          travelMode: 'DRIVING',
+          unitSystem: google.maps.UnitSystem.IMPERIAL
+        });
+      }
+
+      let completedRequests = 0;
+
+      requests.forEach(request => {
+        service.getDistanceMatrix(request, function(response, status) {
+          if (status === 'OK') {
+            totalDistance += response.rows[0].elements[0].distance.value; // in meters
+          }
+          completedRequests++;
+
+          if (completedRequests === requests.length) {
+            totalDistance /= 1609.34; // meters to miles
+            const cost = Math.max(totalDistance * 1.25, 80);
+            document.getElementById('quoteResult').innerHTML = `Estimated Distance: ${totalDistance.toFixed(2)} miles<br>Estimated Cost: $${cost.toFixed(2)}`;
+            document.getElementById('bookNowButton').style.display = 'block';
+          }
+        });
       });
     }
-  </script>
-
-</body>
+  </script></body>
 </html>
