@@ -1,100 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Get a Quote - Indy Expedited</title>
-
-    <!-- Google Analytics Tag -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZW6G67GQ5L"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-ZW6G67GQ5L');
-    </script>
-
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-        input, button { margin: 5px; padding: 8px; }
-        .stop-input { display: block; margin: 5px auto; }
-        #bookNowBtn { margin-top: 15px; background-color: #b30000; color: white; border: none; padding: 10px 20px; cursor: pointer; display: none; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Get a Quote - Indy Expedited</title>
+  <meta name="description" content="Estimate your delivery costs with Indy Expedited. Serving Indianapolis, Fort Wayne, Chicago, and surrounding areas.">
+  <meta name="keywords" content="delivery quote, courier quote, same-day delivery, Indianapolis, Chicago, Fort Wayne">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAA7vkhawpN9oxqBJITVq0ALeZPJdC6OVU&libraries=places"></script>
 </head>
 <body>
-    <h1>Get a Quote</h1>
-    <div>
-        <label>Pickup Location:</label><br>
-        <input type="text" id="pickup" placeholder="Enter pickup address"><br>
 
-        <label>Stops:</label><br>
-        <div id="stops"></div>
-        <button onclick="addStop()">+ Add Stop</button><br>
+  <h1 style="text-align: center; margin-top: 20px;">Get a Delivery Quote</h1>
 
-        <label>Drop-off Location:</label><br>
-        <input type="text" id="dropoff" placeholder="Enter drop-off address"><br>
+  <form id="quoteForm" style="max-width: 600px; margin: 20px auto;">
+    <label for="origin">Pick Up Address:</label><br>
+    <input type="text" id="origin" name="origin" required><br><br>
 
-        <button onclick="calculateQuote()">Calculate Quote</button>
+    <label for="stops">Additional Stops (optional):</label><br>
+    <input type="text" id="stops" name="stops"><br><br>
 
-        <h3 id="result"></h3>
-        <p>* $80 minimum to book *</p>
+    <label for="destination">Drop Off Address:</label><br>
+    <input type="text" id="destination" name="destination" required><br><br>
 
-        <button id="bookNowBtn" onclick="window.location.href='booking.html'">Book Now</button>
+    <button type="button" onclick="calculateQuote()" style="background-color: black; color: white; padding: 10px 20px; border: none; cursor: pointer;">Calculate Quote</button>
+  </form>
 
-        <br><br>
-        <button onclick="window.location.href='index.html'">Back to Home</button>
-    </div>
+  <div id="quoteResult" style="text-align: center; margin-top: 20px; font-size: 18px;"></div>
 
-    <script>
-        let stopCount = 0;
-        function addStop() {
-            stopCount++;
-            const stopInput = document.createElement('input');
-            stopInput.type = 'text';
-            stopInput.placeholder = 'Stop ' + stopCount;
-            stopInput.className = 'stop-input';
-            document.getElementById('stops').appendChild(stopInput);
-        }
+  <div id="bookNowButton" style="text-align: center; margin-top: 20px; display: none;">
+    <a href="booking.html" style="text-decoration: none; background-color: red; color: white; padding: 10px 20px; border-radius: 5px;">Book This Delivery</a>
+  </div>
 
-        function calculateQuote() {
-            const pickup = document.getElementById('pickup').value;
-            const dropoff = document.getElementById('dropoff').value;
-            const stopElements = document.querySelectorAll('.stop-input');
+  <div style="text-align: center; margin-top: 30px;">
+    <a href="index.html" style="text-decoration: none; background-color: black; color: white; padding: 10px 20px; border-radius: 5px;">Back to Home</a>
+  </div>
 
-            let locations = [pickup];
-            stopElements.forEach(stop => {
-                if (stop.value.trim() !== '') locations.push(stop.value);
-            });
-            locations.push(dropoff);
+  <script>
+    function calculateQuote() {
+      const origin = document.getElementById('origin').value;
+      const stops = document.getElementById('stops').value;
+      const destination = document.getElementById('destination').value;
 
-            const service = new google.maps.DistanceMatrixService();
-            let totalDistance = 0;
+      if (!origin || !destination) {
+        alert('Please enter both pick up and drop off addresses.');
+        return;
+      }
 
-            function calculateSegment(index) {
-                if (index >= locations.length - 1) {
-                    const quote = Math.max(80, (totalDistance * 1.25).toFixed(2));
-                    document.getElementById('result').innerText = `Estimated Quote: $${quote}`;
-                    document.getElementById('bookNowBtn').style.display = 'inline-block';
-                    return;
-                }
-                service.getDistanceMatrix({
-                    origins: [locations[index]],
-                    destinations: [locations[index + 1]],
-                    travelMode: 'DRIVING',
-                }, (response, status) => {
-                    if (status !== 'OK') {
-                        document.getElementById('result').innerText = 'Error calculating distance.';
-                    } else {
-                        const distanceInMiles = response.rows[0].elements[0].distance.value / 1609.34;
-                        totalDistance += distanceInMiles;
-                        calculateSegment(index + 1);
-                    }
-                });
+      const service = new google.maps.DistanceMatrixService();
+      let addresses = [origin];
+      if (stops.trim() !== '') addresses.push(stops);
+      addresses.push(destination);
+
+      service.getDistanceMatrix({
+        origins: addresses.slice(0, -1),
+        destinations: addresses.slice(1),
+        travelMode: 'DRIVING',
+        unitSystem: google.maps.UnitSystem.IMPERIAL,
+      }, function(response, status) {
+        if (status !== 'OK') {
+          alert('Error calculating distances: ' + status);
+        } else {
+          let totalDistance = 0;
+          const elements = response.rows;
+          for (let i = 0; i < elements.length; i++) {
+            const element = elements[i].elements[0];
+            if (element.status === 'OK') {
+              totalDistance += element.distance.value; // meters
             }
-            calculateSegment(0);
-        }
-    </script>
+          }
+          totalDistance /= 1609.34; // Convert meters to miles
+          const cost = Math.max(totalDistance * 1.25, 60);
 
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAA7vkhawpN9oxqBJITVq0ALeZPJdC6OVU&libraries=places"></script>
+          document.getElementById('quoteResult').innerHTML = `Estimated Distance: ${totalDistance.toFixed(2)} miles<br>Estimated Cost: $${cost.toFixed(2)}`;
+          document.getElementById('bookNowButton').style.display = 'block';
+        }
+      });
+    }
+  </script>
+
 </body>
 </html>
